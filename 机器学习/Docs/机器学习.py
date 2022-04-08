@@ -302,6 +302,91 @@ scaler.inverse_transform(x_std)
 # MAGIC %md
 # MAGIC ### 类别型特征
 # MAGIC 
+# MAGIC 在机器学习中，大多数算法，譬如逻辑回归，支持向量机SVM，K近邻算法等都只能够处理数值型数据，不能处理文字，在sklearn当中，除了专用来处理文字的算法，其他算法在fit的时候全部要求输入数组或矩阵，也不能够导入文字型数据（其实手写决策树和普斯贝叶斯可以处理文字，但是sklearn中规定必须导入数值型）。然而在现实中，许多标签和特征在数据收集完毕的时候，都不是以数字来表现的。
+# MAGIC 
+# MAGIC 在这种情况下，为了让数据适应算法和库，我们必须将数据进行编码，即是说，将文字型数据转换为数值型。
+
+# COMMAND ----------
+
+import pandas as pd
+
+taitanic_train = pd.read_csv("../../Datasets/taitanic_train.csv")
+
+# 缺失值全部删除记录
+taitanic_train.dropna(inplace=True)
+
+taitanic_train["SurvivedLabel"] = taitanic_train["Survived"].map(lambda x: "Yes" if x == 1 else "No")
+
+taitanic_train.info(), taitanic_train.head()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 标签处理
+# MAGIC 
+# MAGIC preprocessing.LabelEncoder：标签专用，能够将分类转换为分类数值。
+
+# COMMAND ----------
+
+from sklearn.preprocessing import LabelEncoder
+
+taitanic_train_label = taitanic_train.copy()
+
+# 要输入的是标签
+y = taitanic_train_label.iloc[:,-1]
+
+# 实例化
+le = LabelEncoder()
+le = le.fit(y)
+label = le.transform(y)
+
+# label = le.fit_transform(y)
+# label = LabelEncoder().fit_transform(taitanic_train_label.iloc[:,-1])
+# classes_ 查看标签中究竟有多少类别
+y, le.classes_, label
+
+# COMMAND ----------
+
+taitanic_train_label["SurvivedLabelEncoder"] = label
+
+taitanic_train_label.head()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 特征处理
+# MAGIC 
+# MAGIC preprocessing.OrdinalEncoder：特征专用，能够将分类特征转换为分类数值。
+
+# COMMAND ----------
+
+from sklearn.preprocessing import OrdinalEncoder
+
+taitanic_train_feature = taitanic_train.copy()
+
+# categories_ 查看标签中究竟有多少类别，[array(['female', 'male'], dtype=object)]
+OrdinalEncoder().fit(taitanic_train_feature.iloc[:,4:5]).categories_
+
+taitanic_train_feature.iloc[:,4:5], OrdinalEncoder().fit_transform(taitanic_train_feature.iloc[:,4:5])
+
+# COMMAND ----------
+
+# categories_ 查看标签中究竟有多少类别，[array(['C', 'Q', 'S'], dtype=object)]
+OrdinalEncoder().fit(taitanic_train_feature.iloc[:,11:12]).categories_
+
+taitanic_train_feature.iloc[:,11:12], OrdinalEncoder().fit_transform(taitanic_train_feature.iloc[:,11:12])
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 独热编码
+# MAGIC 
+# MAGIC 我们刚才已经用OrdinalEncoder把分类变量Sex和Embarked都转换成数字对应的类别了。在舱门Embarked这一列中，我们使用[0,1,2]代表了三个不同的舱门，然而这种转换是正确的吗？
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 
 # MAGIC * 类别型：OneHot encoding/独热向量编码
 # MAGIC   * pandas get_dummies/哑变量
 # MAGIC   * OneHotEncoder()
