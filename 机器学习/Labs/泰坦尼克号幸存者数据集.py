@@ -30,7 +30,7 @@
 # MAGIC * Ticket：票的编号。
 # MAGIC * Fare：费用。
 # MAGIC * Cabin：舱号。
-# MAGIC * Embarked：上船的地方。
+# MAGIC * Embarked：登船的地方。
 
 # COMMAND ----------
 
@@ -133,35 +133,7 @@ df_train.info()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### 数值型特征
-# MAGIC 
-# MAGIC 数值型的幅度变换：对数变换、多项式变换。
-# MAGIC * apply + numpy
-# MAGIC * preprocessing scaler
-# MAGIC 
-# MAGIC 对数变换，使得特征和目标变量之间的关系更接近线性，从而提高预测效果。
-
-# COMMAND ----------
-
-import numpy as np
-
-# apply函数主要是针对的列数和行数
-log_age = df_train["fill_age"].apply(lambda x: np.log(x))
-
-log_age
-
-# COMMAND ----------
-
-df_train.loc[:,"log_age"] = log_age
-
-display(df_train.head())
-
-df_train.info()
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### 归一化
+# MAGIC ### 归一化
 # MAGIC 
 # MAGIC **归一化(Normalization)：** 当数据(x)按照最小值中心化后，再按极差（最大值 - 最小值）缩放，数据移动了最小值个单位，并且会被收敛到[0,1]之间，而这个过程，就叫做数据归一化
 # MAGIC * 把数据变成[0,1]或者[-1,1]之间的小数。主要是为了数据处理方便提出来的，把数据映射到0~1范围之内处理，更加便捷快速。
@@ -172,7 +144,7 @@ df_train.info()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### 最大最小归一化
+# MAGIC #### 最大最小归一化
 # MAGIC 
 # MAGIC **最大最小归一化(MinMaxScaler)：**
 # MAGIC 
@@ -203,7 +175,7 @@ plt.scatter(df_train['Fare'].index,fare_mm_trans,c='r')
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### 标准化
+# MAGIC ### 标准化
 # MAGIC 
 # MAGIC 在机器学习中，我们可能要处理不同种类的资料，例如，音讯和图片上的像素值，这些资料可能是高维度的，资料标准化后会使每个特征中的数值平均变为0(将每个特征的值都减掉原始资料中该特征的平均)、标准差变为1，这个方法被广泛的使用在许多机器学习算法中(例如：支持向量机、逻辑回归和类神经网络)。
 # MAGIC 
@@ -236,6 +208,39 @@ plt.scatter(df_train['Fare'].index,fare_std_trans,c='r')
 # MAGIC 大多数机器学习算法中，会选择StandardScaler来进行特征缩放，因为MinMaxScaler对异常值非常敏感。在PCA，聚类，逻辑回归，支持向量机，神经网络这些算法中，StandardScaler往往是最好的选择。
 # MAGIC 
 # MAGIC MinMaxScaler在不涉及距离度量、梯度、协方差计算以及数据需要被压缩到特定区间时使用广泛，比如数字图像处理中量化像素强度时，都会使用MinMaxScaler将数据压缩于[0,1]区间之中。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## 特征数据处理
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### 数值型特征
+# MAGIC 
+# MAGIC 数值型的幅度变换：对数变换、多项式变换。
+# MAGIC * apply + numpy
+# MAGIC * preprocessing scaler
+# MAGIC 
+# MAGIC 对数变换，使得特征和目标变量之间的关系更接近线性，从而提高预测效果。
+
+# COMMAND ----------
+
+import numpy as np
+
+# apply函数主要是针对的列数和行数
+log_age = df_train["fill_age"].apply(lambda x: np.log(x))
+
+log_age
+
+# COMMAND ----------
+
+df_train.loc[:,"log_age"] = log_age
+
+display(df_train.head())
+
+df_train.info()
 
 # COMMAND ----------
 

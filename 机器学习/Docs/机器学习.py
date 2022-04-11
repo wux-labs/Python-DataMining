@@ -63,18 +63,7 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### 数值型特征
-# MAGIC 
-# MAGIC 数值型的幅度变换：对数变换、多项式变换。
-# MAGIC * apply + numpy
-# MAGIC * preprocessing scaler
-# MAGIC 
-# MAGIC 对数变换，使得特征和目标变量之间的关系更接近线性，从而提高预测效果。
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### 归一化
+# MAGIC ### 归一化
 # MAGIC 
 # MAGIC **归一化(Normalization)：** 当数据(x)按照最小值中心化后，再按极差（最大值 - 最小值）缩放，数据移动了最小值个单位，并且会被收敛到[0,1]之间，而这个过程，就叫做数据归一化
 # MAGIC * 把数据变成[0,1]或者[-1,1]之间的小数。主要是为了数据处理方便提出来的，把数据映射到0~1范围之内处理，更加便捷快速。
@@ -85,7 +74,7 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### 最大最小归一化
+# MAGIC #### 最大最小归一化
 # MAGIC 
 # MAGIC **最大最小归一化(MinMaxScaler)：**
 # MAGIC 
@@ -169,7 +158,7 @@ result
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### 标准化
+# MAGIC ### 标准化
 # MAGIC 
 # MAGIC 在机器学习中，我们可能要处理不同种类的资料，例如，音讯和图片上的像素值，这些资料可能是高维度的，资料标准化后会使每个特征中的数值平均变为0(将每个特征的值都减掉原始资料中该特征的平均)、标准差变为1，这个方法被广泛的使用在许多机器学习算法中(例如：支持向量机、逻辑回归和类神经网络)。
 # MAGIC 
@@ -249,6 +238,22 @@ scaler.inverse_transform(x_std)
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC ## 特征数据处理
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### 数值型特征
+# MAGIC 
+# MAGIC 数值型的幅度变换：对数变换、多项式变换。
+# MAGIC * apply + numpy
+# MAGIC * preprocessing scaler
+# MAGIC 
+# MAGIC 对数变换，使得特征和目标变量之间的关系更接近线性，从而提高预测效果。
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC #### 统计值
 # MAGIC 
 # MAGIC * max
@@ -315,7 +320,7 @@ taitanic_train = pd.read_csv("../../Datasets/taitanic_train.csv")
 # 缺失值全部删除记录
 taitanic_train.dropna(inplace=True)
 # 行记录被删除后，行index不会变，会导致index不连续，对后续基于index的处理会导致问题，所以需要将index重置一下
-taitanic_train_reindex = taitanic_train_onehot.reset_index()
+taitanic_train_reindex = taitanic_train.reset_index()
 
 taitanic_train["SurvivedLabel"] = taitanic_train["Survived"].map(lambda x: "Yes" if x == 1 else "No")
 
@@ -502,6 +507,69 @@ display(pd.concat([taitanic_train_onehot.reset_index(),pd.DataFrame(result)],axi
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC ### 连续型特征
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 二值化
+# MAGIC 
+# MAGIC 根据阈值将数据二值化（将特征值设置为0或1），用于处理连续型变量。大于阈值的值映射为1，而小于或等于阈值的值映射为0。默认阈值为0时，特征中所有的正值都映射到1。二值化是对文本计数数据的常见操作，分析人员可以决定仅考虑某种现象的存在与否。它还可以用作考虑布尔随机变量的估计器的预处理步骤（例如，使用贝叶斯设置中的伯努利分布建模）。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### Binarizer
+
+# COMMAND ----------
+
+from sklearn.preprocessing import Binarizer
+
+taitanic_train_binary = taitanic_train.copy()
+
+X = taitanic_train_binary.iloc[:,5].values.reshape(-1,1)
+transformer = Binarizer(threshold=32).fit_transform(X)
+
+data = pd.concat([pd.DataFrame(X), pd.DataFrame(transformer)],axis=1)
+data.columns = ["Age","Binarizer"]
+
+display(data)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 分段
+# MAGIC 
+# MAGIC 将连续型变量划分为分类变量。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### KBinsDiscretizer
+# MAGIC 
+# MAGIC | 参数 | 含义&输入 |
+# MAGIC | ----- | ----- |
+# MAGIC | n_bins | 每个特征中分箱的个数，默认5，一次会被运用到所有导入的特征 |
+# MAGIC | encode| 编码的方式，默认"onehot"<br>"onehot"：做哑变量，之后返回一个稀疏矩阵，每一列是一个特征中的一个类别，含有该类别的样本表示为1，不含的表示为0<br>"ordinal"：每个特征的每个箱都被编码为一个整数，返回每一列是一个特征，每个特征下含有不同整数编码的箱的矩阵<br>"onehot-dense"：做哑变量，之后返回一个密集数组。 |
+# MAGIC | strategy| 用来定义箱宽的方式，默认"quantile"<br>"uniform"：表示等宽分箱，即每个特征中的每个箱的最大值之间的差为(特征.max() - 特征.min())/(n_bins)<br>"quantile"：表示等位分箱，即每个特征中的每个箱内的样本数量都相同<br>"kmeans"：表示按聚类分箱，每个箱中的值到最近的一维k均值聚类的簇心得距离都相同。 |
+
+# COMMAND ----------
+
+from sklearn.preprocessing import KBinsDiscretizer
+
+taitanic_train_kbins = taitanic_train.copy()
+
+X = taitanic_train_kbins.iloc[:,5].values.reshape(-1,1)
+transformer = KBinsDiscretizer(n_bins=3, encode='ordinal', strategy='quantile').fit_transform(X)
+
+data = pd.concat([pd.DataFrame(X), pd.DataFrame(transformer)],axis=1)
+data.columns = ["Age","Binarizer"]
+
+display(data)
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC # 特征工程
 # MAGIC 
 # MAGIC **特征工程(Feature Engineering)** 是将原始数据转化成更好的表达问题本质的特征的过程，使得将这些特征运用到预测模型中能提高对不可见数据的模型预测精度。 特征工程简单讲就是发现对因变量有明显影响作用的特征，通常称自变量为特征，特征工程的目的是发现重要特征。如何能够分解和聚合原始数据，以更好的表达问题的本质？这是做特征工程的目的。
@@ -509,3 +577,223 @@ display(pd.concat([taitanic_train_onehot.reset_index(),pd.DataFrame(result)],axi
 # MAGIC 本质上来说，呈现给算法的数据应该能拥有基本数据的相关结构或属性。
 # MAGIC 
 # MAGIC 做特征工程时，其实是将数据属性转换为数据特征的过程。属性代表了数据的所有维度，再数据建模时，如果对原始数据的所有属性进行学习，并不能很好的找到数据的潜在趋势，而通过特征工程对数据进行预处理的话，算法模型能够减少受到噪声的干扰，这样就能够更好的找出趋势。好的特征甚至能够帮助实现使用简单的模型达到很好的效果。
+# MAGIC 
+# MAGIC | 特征提取（feature extraction） | 特征创造（feature creation） | 特征选择（feature selection） |
+# MAGIC | ----- | ----- | ----- |
+# MAGIC | 从文字、图像、声音等其他非结构化数据中提取新信息作为特征。比如，通过商品名称提取类别、颜色等。 | 把现有特征进行组合，或互相计算，得到新的特征。比如，如果有速度特征、距离特征，我们就可以计算一个所需时间的特征。 | 从所有的特征中，选择出有意义、对模型有帮助的特征，以避免必须将所有特征都导入模型去训练。 |
+# MAGIC 
+# MAGIC 一定要抓住给你提供数据的人，尤其时理解业务和数据含义的人，多跟他们沟通，确保你和业务人员一样**理解数据**。
+# MAGIC 
+# MAGIC 特征选择的第一步，其实是根据我们的目标，用业务常识来选择特征。
+# MAGIC 
+# MAGIC 比如在泰坦尼克号数据集中，是否存活是我们的标签，很明显，以判断“是否存活”为目的，票号、登船的地方、乘客的编号明显是无关特征，可以直接删除。姓名、舱位等级、船舱编号，也基本可以判断是相关性比较低的特征。性别、年龄、兄弟姐妹的数量、父母和小孩的数量，这些应该是相关性比较高的特征。
+# MAGIC 
+# MAGIC 所以，**特征工程的第一步，是理解业务、理解数据**。
+# MAGIC 
+# MAGIC 当然，在真正的数据应用领域，我们的数据的特征很多，并且特征与我们的目标的相关性并不很明显。
+# MAGIC 
+# MAGIC 如果遇到极端情况，我们无法依赖对业务的理解来选择特征，该怎么办呢？
+# MAGIC 
+# MAGIC 我们有四种方法可以用来选择特征：过滤法、嵌入法、包装法，和降维算法。
+
+# COMMAND ----------
+
+import zipfile
+import pandas as pd
+
+digit_recognizer_train = pd.read_csv("../../Datasets/digit_recognizer_train.zip",compression='zip')
+
+X = digit_recognizer_train.iloc[:,1:]
+y = digit_recognizer_train.iloc[:,0]
+
+X.head()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## 过滤法
+# MAGIC 
+# MAGIC 过滤法通常用作预处理步骤，特征选择完全独立于任何机器学习算法。它是根据各种统计检验中的分数以及相关性的各项指标来选择特征。
+# MAGIC 
+# MAGIC 全部特征 -> 最佳特征子集 -> 算法 -> 模型评估
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### 方差过滤
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### VariabceThreshold
+# MAGIC 
+# MAGIC 这是通过特征本身的方差来筛选特征的类。比如一个特征本身的方差很小，就表示样本在这个特征上基本没有差异，可能特征中的大多数值都一样，甚至整个特征的取值都相同，那这个特征对于样本区分没有什么作用。**所以无论接下来的特征工程要做什么，都要优先消除方差为0的特征**。VarianceThreshold 有重要参数 **threshold** ，表示方差的阈值，表示舍弃所有方差小于 threshold 的特征，不填的话默认是0，即删除所有的记录都相同的特征。
+
+# COMMAND ----------
+
+from sklearn.feature_selection import VarianceThreshold
+
+selector = VarianceThreshold()
+X_0 = selector.fit_transform(X)
+
+X_0.shape, pd.DataFrame(X_0).head()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 可以看见，我们已经删除了方差为0的特征，但依然剩下了708个特征，明显还需要进一步的特征选择。然而，如果我们指知道我们需要多少个特征，方差也可以帮助我们将特征选择一步到位。比如我们希望留下一半的特征，那可以设定一个让特征总数减半的方差阈值，只要找到方差的中位数，再将这个中位数作为参数 threshold 的值传入就好了，以下代码将784个特征直接缩减到392个：
+
+# COMMAND ----------
+
+import numpy as np
+
+print(np.median(X.var().values))
+
+X_1 = VarianceThreshold(np.median(X.var().values)).fit_transform(X)
+
+X_1.shape
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 当特征是二分类时，特征的取值就是**伯努利随机变量**，这些变量的方差可以计算为：
+# MAGIC 
+# MAGIC ![](https://www.zhihu.com/equation?tex=Var%5BX%5D=p%28+1-p%29)
+# MAGIC 
+# MAGIC 其中![](https://www.zhihu.com/equation?tex=X)时特征矩阵，![](https://www.zhihu.com/equation?tex=p)是二分类特征中的一类在这个特征中所占的概率。
+
+# COMMAND ----------
+
+# 若特征是伯努利随机变量，假设 p=0.8，即二分类特征中某种分类占到 80% 以上的时候删除特征
+X_2 = VarianceThreshold(0.8 * (1 - 0.8)).fit_transform(X)
+X_2.shape
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 方差过滤对模型的影响
+# MAGIC 
+# MAGIC 我们这样做了以后，多模型效果会有怎样的影响呢？
+# MAGIC 
+# MAGIC 这里我们通过KNN和随机森林分别在方差过滤前后运行的效果和时间来做比对。
+
+# COMMAND ----------
+
+from sklearn.ensemble import RandomForestClassifier as RFC
+from sklearn.neighbors import KNeighborsClassifier as KNN
+from sklearn.feature_selection import VarianceThreshold
+from sklearn.model_selection import cross_val_score
+import numpy as np
+import zipfile
+import pandas as pd
+
+digit_recognizer_train = pd.read_csv("../../Datasets/digit_recognizer_train.zip",compression='zip')
+
+X = digit_recognizer_train.iloc[:,1:]
+y = digit_recognizer_train.iloc[:,0]
+
+X_fsvar = VarianceThreshold(np.median(X.var().values)).fit_transform(X)
+
+X.shape, X_fsvar.shape
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### KNN 方差过滤前
+
+# COMMAND ----------
+
+cross_val_score(KNN(), X, y, cv=5).mean()
+
+# COMMAND ----------
+
+# MAGIC %%timeit
+# MAGIC 
+# MAGIC cross_val_score(KNN(), X, y, cv=5).mean()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### KNN 方差过滤后
+
+# COMMAND ----------
+
+cross_val_score(KNN(), X_fsvar, y, cv=5).mean()
+
+# COMMAND ----------
+
+# MAGIC %%timeit
+# MAGIC 
+# MAGIC cross_val_score(KNN(), X_fsvar, y, cv=5).mean()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### RFC 方差过滤前
+
+# COMMAND ----------
+
+cross_val_score(RFC(n_estimators=10, random_state=0), X, y, cv=5).mean()
+
+# COMMAND ----------
+
+# MAGIC %%timeit
+# MAGIC 
+# MAGIC cross_val_score(RFC(n_estimators=10, random_state=0), X, y, cv=5).mean()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### RFC 方差过滤后
+
+# COMMAND ----------
+
+cross_val_score(RFC(n_estimators=10, random_state=0), X_fsvar, y, cv=5).mean()
+
+# COMMAND ----------
+
+# MAGIC %%timeit
+# MAGIC 
+# MAGIC cross_val_score(RFC(n_estimators=10, random_state=0), X_fsvar, y, cv=5).mean()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### 结论
+# MAGIC 
+# MAGIC 为什么随机森林运行如此之快？为什么方差过滤对随机森林没有很大的影响？
+# MAGIC 
+# MAGIC 这是由于两种算法的原理中涉及到的计算量不同。最近邻算法KNN，单棵决策树，支持向量机SVM，神经网络，回归算法，都需要遍历特征或升维来进行运算，所以他们本身的运算量就很大，需要的时间就很长，因此方差过滤这样的特征选择对他们来说就尤为重要。但对于不需要遍历特征的算法，比如随机森林，它随机选取特征进行分枝，本身运算就非常快速，因此特征选择对它来说效果一般。这其实很容易理解，无论过滤法如何降低特征的数量，随机森林也只会选取固定数量的特征来建模，而最近邻算法就不同了，特征越少，距离计算的维度就越少，模型明显会随着特征的减少变得轻量。
+# MAGIC 
+# MAGIC 因此，过滤法的**主要对象**是：**需要遍历特征或升维的算法们**，而过滤法的**主要目的**是：**在维持算法表现的前提下，帮助算法们降低计算成本**。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### 思考
+# MAGIC 
+# MAGIC **过滤法对随机森林无效，却对树模型有效？**
+# MAGIC 
+# MAGIC 从算法原理来说，传统决策树需要遍历所有特征，计算不纯度后进行分枝，而随机森林却是随机选择特征进行计算和分枝，因此随机森林的运算更快，过滤法对随机森林无用，对决策树有用。
+# MAGIC 
+# MAGIC 在sklearn中，决策树和随机森林都是随机选择特征进行分枝，但决策树在建模过程中随机抽取的特征数目却远远超过随机森林当中每棵树随机抽取的特征数目。因此，过滤法对随机森林无用，对决策树有用。
+# MAGIC 
+# MAGIC 也因此，在sklearn中，随机森林中的每棵树都比单独的一棵决策树简单得多，高维数据下的随机森林的计算比决策树快很多。
+# MAGIC 
+# MAGIC 对受影响的算法来说：
+# MAGIC 
+# MAGIC | | 阈值很小，被过滤掉的特征比较少 | 阈值较大，被过滤掉的特征有很多 |
+# MAGIC | ----- | ----- | ----- |
+# MAGIC | 模型表现 | 不会有太大影响 | 可能变更好，代表被过滤掉的特征大部分是噪音；也可能变更糟糕，代表被过滤掉的特征中很多都是有效特征 |
+# MAGIC | 运行时间 | 可能降低模型的运行时间，基于方差很小的特征有多少，当方差很小的特征不多时，对模型没有太大影响 | 一定能够降低模型的运行时间，算法在遍历特征时的计算越复杂，运行时间下降得越多 |
+# MAGIC 
+# MAGIC 在我们的对比中，我们使用的方差阈值是特征方差的中位数，因此属于阈值比较大，过滤掉的特征比较多的情况。我们可以观察到，无论是KNN还是随机森林，在过滤掉一半特征后，模型的精确度都上升了，这说明被我们过滤掉的特征在当前随机模式下大部分是噪音。那我们就可以保留这个去掉一半特征的数据，来为之后的特征选择做准备。当然，如果过滤之后的模型的效果反而变差了，我们就可以认为，被我们过滤掉的特征中有很多都是有效特征，那我们就放弃过滤，使用其他手段来进行特征选择。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### 思考
+# MAGIC 
+# MAGIC **我们怎么知道，方差过滤掉的到底是噪音还是有效特征呢？过滤后的模型到底会变好还是会变坏呢？**
+# MAGIC 
+# MAGIC 每个数据集都不一样，只能自己尝试。这里的方差阈值，其实相当于是一个超参数，要选定最优的超参数，我们可以画学习曲线，找模型效果最好的点。但现实中，我们往往不会这样去做，因为这样会耗费大量的时间。我们只会使用阈值为0或者阈值很小的方差过滤，来为我们优先消除一些明显用不到的特征，然后我们会选择更优的特征选择方法继续削减特征数量。
