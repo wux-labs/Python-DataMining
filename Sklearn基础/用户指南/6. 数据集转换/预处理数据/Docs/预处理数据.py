@@ -820,21 +820,170 @@ transformer, transformer.transform(K)
 
 # MAGIC %md
 # MAGIC # 非线性变换
+# MAGIC 
+# MAGIC 有两种类型的变换可用：分位数变换和幂变换。分位数和幂变换都基于特征的单调变换，因此保留了每个特征上值的秩。
+# MAGIC 
+# MAGIC 分位数变换根据公式![](https://www.zhihu.com/equation?tex=G^%7B-1%7D%28F%28X%29%29)将所有特征置于相同的期望分布中，其中![](https://www.zhihu.com/equation?tex=F)是特征的累积分布函数，![](https://www.zhihu.com/equation?tex=G^%7B-1%7D)是期望输出值分布![](https://www.zhihu.com/equation?tex=G)的分位数函数。这个公式基于以下两个事实：
+# MAGIC * 如果![](https://www.zhihu.com/equation?tex=X)是具有连续累积分布函数![](https://www.zhihu.com/equation?tex=F)的随机变量，那么![](https://www.zhihu.com/equation?tex=F%28X%29)均匀分布在![](https://www.zhihu.com/equation?tex=%5B0%2C1%5D)
+# MAGIC * 如果![](https://www.zhihu.com/equation?tex=U)是在![](https://www.zhihu.com/equation?tex=%5B0%2C1%5D)上的随机分布，那么![](https://www.zhihu.com/equation?tex=G^%7B-1%7D%28U%29)有分布![](https://www.zhihu.com/equation?tex=G)。
+# MAGIC 
+# MAGIC 通过执行秩变换，分位数变换平滑了异常分布，并且比缩放方法受异常值的影响更小。但是它的确使特征间及特征内的关联和距离失真了。
+# MAGIC 
+# MAGIC 幂变换则是一组参数变换，其目的是将数据从任意分布映射到接近高斯分布的位置。
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC ## 映射到均匀分布
+# MAGIC 
+# MAGIC QuantileTransformer 提供了一个基于分位数函数的无参数转换，将数据映射到值介于 0 和 1 之间的均匀分布：
+
+# COMMAND ----------
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+
+X, y = load_iris(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+
+quantile_transformer = preprocessing.QuantileTransformer(random_state=0)
+X_train_trans = quantile_transformer.fit_transform(X_train)
+X_test_trans = quantile_transformer.transform(X_test)
+
+np.percentile(X_train[:, 0], [0, 25, 50, 75, 100]) 
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 这些特征对应于萼片长度（以厘米为单位）。应用分位数变换后，这些特征点将接近先前定义的百分位数：
+
+# COMMAND ----------
+
+np.percentile(X_train_trans[:, 0], [0, 25, 50, 75, 100])
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 这可以在具有类似形式的独立测试集上进行确认：
+
+# COMMAND ----------
+
+np.percentile(X_test[:, 0], [0, 25, 50, 75, 100]), np.percentile(X_test_trans[:, 0], [0, 25, 50, 75, 100])
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### QuantileTransformer
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC ## 映射到高斯分布
+# MAGIC 
+# MAGIC 在许多建模场景中，需要数据集中的特征的正态化。幂变换是一类参数化的单调变换， 其目的是将数据从任何分布映射到尽可能接近高斯分布，以便稳定方差和最小化偏度。
+# MAGIC 
+# MAGIC PowerTransformer目前提供两种这样的幂变换，Yeo-Johnson变换和Box-Cox变换。
+# MAGIC 
+# MAGIC Yeo-Johnson变换由下式给出：
+# MAGIC 
+# MAGIC ![](https://www.zhihu.com/equation?tex=x_i^%7B%28%5Clambda%29%7D%3D%5Cbegin%7Bcases%7D%5B%28x_i%2B1%29^%5Clambda-1%5D%2F%5Clambda%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad+if%5Cquad%5Clambda%5Cne+0%2Cx_i%5Cge0%2C%5C%5C%5C%5C+ln%28x_i%2B1%29%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad+if%5Cquad%5Clambda%3D0%2Cx_i%5Cge0%2C%5C%5C%5C%5C+-%5B%28-x_i%2B1%29^%7B2-%5Clambda%7D-1%5D%2F%28+2-%5Clambda%29%5Cquad%5Cquad+if%5Cquad%5Clambda%5Cne2%2Cx_i%5Clt0%2C%5C%5C%5C%5C+-ln%28-x_i%2B1%29%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad+if%5Cquad%5Clambda%3D2%2Cx_i%5Clt0%5Cend%7Bcases%7D)
+# MAGIC 
+# MAGIC 而 Box-Cox 变换由下式给出：
+# MAGIC 
+# MAGIC ![](https://www.zhihu.com/equation?tex=x_i^%7B%28%5Clambda%29%7D%3D%5Cbegin%7Bcases%7D%5Cfrac%7Bx_i^%5Clambda-1%7D%7B%5Clambda%7D%5Cquad%5Cquad%5Cquad+if%5Cquad%5Clambda%5Cne0%2C%5C%5C%5C%5C+ln%28x_i%29%5Cquad%5Cquad%5Cquad+if%5Cquad%5Clambda%3D0%5Cend%7Bcases%7D)
+# MAGIC 
+# MAGIC Box-Cox只能应用于严格的正数据。在这两种方法中，变换都由![](https://www.zhihu.com/equation?tex=%5Clambda)参数化，后者通过最大似然估计确定。下面是使用 Box-Cox 将样本从对数正态分布映射到正态分布的示例：
+
+# COMMAND ----------
+
+pt = preprocessing.PowerTransformer(method='box-cox', standardize=False)
+X_lognormal = np.random.RandomState(616).lognormal(size=(3, 3))
+
+X_lognormal, pt.fit_transform(X_lognormal)
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC # 规范化
+# MAGIC 
+# MAGIC 上述示例设置了参数standardize的选项为 False 。但 PowerTransformer 将默认将对转换后的输出应用零均值、单位方差归一化。
+# MAGIC 
+# MAGIC 也可以通过设置 output_distribution='normal' 来使用 QuantileTransformer 将数据映射到正态分布。
+
+# COMMAND ----------
+
+quantile_transformer = preprocessing.QuantileTransformer(
+    output_distribution='normal', random_state=0)
+X_trans = quantile_transformer.fit_transform(X)
+quantile_transformer.quantiles_
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 
+# MAGIC 因此，输入的中位数成为输出的平均值，以 0 为中心。正态输出被裁剪以便输入的最大最小值(分别对应于1e-7和1-1e-7)不会在变换之下变成无穷。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### PowerTransformer
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC # 归一化
+# MAGIC 
+# MAGIC **归一化**是**缩放单个样本以具有单位范数**的过程。如果您计划使用二次形式（如点积或任何其他核）来量化任何一对样本的相似性，则此过程可能很有用。
+# MAGIC 
+# MAGIC 这个观点基于 向量空间模型(Vector Space Model) ，经常在文本分类和内容聚类中使用。
+# MAGIC 
+# MAGIC 函数 normalize 提供了一种快速简便的方法，可以使用 l1、l2 或 max 规范对单个类似数组的数据集执行此操作：
+
+# COMMAND ----------
+
+X = [[ 1., -1.,  2.],
+     [ 2.,  0.,  0.],
+     [ 0.,  1., -1.]]
+X_normalized = preprocessing.normalize(X, norm='l2')
+
+X_normalized
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 
+# MAGIC preprocessing 预处理模块提供的 Normalizer 工具类使用 Transformer API 实现了相同的操作(即使在这种情况下， fit 方法是无用的：该类是无状态的，因为该操作独立对待样本)。
+# MAGIC 
+# MAGIC 因此，此类适合在 Pipeline 的早期步骤中使用：
+
+# COMMAND ----------
+
+normalizer = preprocessing.Normalizer().fit(X)  # fit does nothing
+normalizer
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 
+# MAGIC 在这之后归一化实例可以被使用在样本向量中，像任何其他转换器一样：
+
+# COMMAND ----------
+
+normalizer.transform(X), normalizer.transform([[-1.,  1., 0.]])
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 
+# MAGIC 注意： L2 规范化也称为空间符号预处理。
+# MAGIC 
+# MAGIC > **稀疏(数据)输入**  
+# MAGIC 函数 normalize 以及类 Normalizer 接收 来自scipy.sparse的密集类数组数据和稀疏矩阵 作为输入。  
+# MAGIC 对于稀疏输入，在被提交给高效Cython例程前，数据被 转化为压缩的稀疏行形式 (参见 scipy.sparse.csr_matrix )。为了避免不必要的内存复制，推荐在上游选择CSR表示。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### Normalizer
 
 # COMMAND ----------
 

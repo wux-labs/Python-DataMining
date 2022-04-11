@@ -314,10 +314,14 @@ taitanic_train = pd.read_csv("../../Datasets/taitanic_train.csv")
 
 # 缺失值全部删除记录
 taitanic_train.dropna(inplace=True)
+# 行记录被删除后，行index不会变，会导致index不连续，对后续基于index的处理会导致问题，所以需要将index重置一下
+taitanic_train_reindex = taitanic_train_onehot.reset_index()
 
 taitanic_train["SurvivedLabel"] = taitanic_train["Survived"].map(lambda x: "Yes" if x == 1 else "No")
 
-taitanic_train.info(), taitanic_train.head()
+print(taitanic_train.info(), taitanic_train.shape)
+
+taitanic_train.head()
 
 # COMMAND ----------
 
@@ -379,21 +383,65 @@ taitanic_train_feature.iloc[:,11:12], OrdinalEncoder().fit_transform(taitanic_tr
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### 独热编码
+# MAGIC #### 思考
 # MAGIC 
-# MAGIC 我们刚才已经用OrdinalEncoder把分类变量Sex和Embarked都转换成数字对应的类别了。在舱门Embarked这一列中，我们使用[0,1,2]代表了三个不同的舱门，然而这种转换是正确的吗？
+# MAGIC 我们刚才已经用OrdinalEncoder把分类变量Sex和Embarked都转换成数字对应的类别了。在Embarked这一列中，我们使用[0,1,2]代表了三个不同的登船地，然而这种转换是正确的吗？
+# MAGIC 
+# MAGIC 我们来思考三种不同性质的分类数据：
+# MAGIC 
+# MAGIC 1） 登船地（S，C，Q）
+# MAGIC 
+# MAGIC 三种取值S，C，Q是相互独立的，彼此之间完全没有联系，表达的是S≠C≠Q的概念。这是**名义变量**。
+# MAGIC 
+# MAGIC 2） 学历（小学，初中，高中）
+# MAGIC 
+# MAGIC 三种取值不是完全独立的，我们可以明显看出，在性质上可以有高中>初中>小学这样的联系，学历有高低，但是学历取值之间却不是可以计算的，我们不能说小学 + 某个取值 = 初中。这是**有序变量**。
+# MAGIC 
+# MAGIC 3） 体重（>45kg，>90kg，>135kg）
+# MAGIC 
+# MAGIC 各个取值之间有联系，且是可以互相计算的，比如120kg - 45kg = 90kg，分类之间可以通过数学计算互相转换。这是**有距变量**。
+# MAGIC 
+# MAGIC 然而在对特征进行编码的时候，这三种分类数据都会被我们转换为[0,1,2]，这三个数字在算法看来，是连续且可以计算的，这三个数字相互不等，有大小，并且有着可以相加相乘的联系。所以算法会把登船地，学历这样的分类特征，都误会成是体重这样的分类特征。这是说，我们把分类转换成数字的时候，忽略了数字中自带的数学性质，所以给算法传达了一些不准确的信息，而这会影响我们的建模。
+# MAGIC 
+# MAGIC 类别OrdinalEncoder可以用来处理有序变量，但对于名义变量，我们只有使用**哑变量**的方式来处理，才能够尽量向算法传达最准确的信息：
+# MAGIC 
+# MAGIC | 原始分类 | 分类数值 | 哑变量 |
+# MAGIC | ----- | ----- | ----- |
+# MAGIC | C | 0 | [0, 0, 1] |
+# MAGIC | Q | 1 | [0, 1, 0] |
+# MAGIC | S | 2 | [1, 0, 0] |
+# MAGIC 
+# MAGIC 这样的变化，让算法能够彻底领悟，原来三个取值是没有可计算性质的，是“有你就没有我”的不等概念。在我们的数据中，Sex和Embarked，都是这样的名义变量。因此我们需要使用**独热编码**，将两个特征都转换为**哑变量**。
 
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC #### 独热编码
 # MAGIC 
-# MAGIC * 类别型：OneHot encoding/独热向量编码
-# MAGIC   * pandas get_dummies/哑变量
-# MAGIC   * OneHotEncoder()
+# MAGIC 为了解决上述问题，其中一种可能的解决方法是采用**独热编码（One-Hot Encoding）**。独热编码即 One-Hot 编码，又称一位有效编码，其方法是使用N位状态寄存器来对N个状态进行编码，每个状态都由他独立的寄存器位，并且在任意时候，其中只有一位有效。
 # MAGIC 
-# MAGIC * 独热编码：使用一个二进制的位来表示某个定性特征的出现与否
+# MAGIC > 例如，对六个状态(0,1,2,3,4,5)进行编码：  
+# MAGIC 自然顺序码为 000,001,010,011,100,101  
+# MAGIC 独热编码则是 000001,000010,000100,001000,010000,100000  
 # MAGIC 
-# MAGIC 一些属性是类别型而不是离散型，举一个简单的例子，由（红、绿、蓝）组成的颜色属性，最常用的方式是把每个类别属性转换成二元属性，即从{0, 1}取一个值。因此基本上增加的属性等于相应数目的类别，并且对于数据集中的每个实例，只有一个1（其他的为0），这也就是独热（one-hot）编码方式。
+# MAGIC 在回归，分类，聚类等机器学习算法中，特征之间距离的计算或相似度的计算是非常重要的。而常用的距离或相似度的计算都是在欧式空间的相似度计算，计算余弦相似性，基于的就是欧式空间。
+# MAGIC 
+# MAGIC 使用独热编码（One-Hot Encoding），将离散特征的取值扩展到了欧式空间，离散特征的某个取值就对应欧式空间的某个点。将离散型特征使用独热编码（One-Hot Encoding），会让特征之间的距离计算更加合理。
+# MAGIC 
+# MAGIC 独热编码优缺点：
+# MAGIC * 优点：独热编码解决了分类器不好处理属性数据的问题，在一定程度上也起到了扩充特征的作用。它的值只有0和1，不同的类型存储在垂直的空间。
+# MAGIC * 缺点：当类别的数量很多时，特征空间会变得非常大。在这种情况下，一般可以用PCA来减少维度。而且one hot encoding+PCA这种组合在实际中也非常有用。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 哑变量
+# MAGIC 
+# MAGIC 通过独热编码，可以将一个具有N个分类属性的特征，扩充到N个具有0、1值的特征。
+# MAGIC 
+# MAGIC **哑变量（Dummy Variable）**，又称为**虚拟变量**、**虚设变量**或**名义变量**，从名称上看就知道，它是人为虚设的变量，通常取值为0或1，来反映某个变量的不同属性。对于有n个分类属性的自变量，通常需要选取1个分类作为参照，因此可以产生n-1个哑变量。
+# MAGIC 
+# MAGIC 将哑变量引入回归模型，虽然使模型变得较为复杂，但可以更直观地反映出该自变量的不同属性对于因变量的影响，提高了模型的精度和准确度。
 
 # COMMAND ----------
 
@@ -401,6 +449,55 @@ taitanic_train_feature.iloc[:,11:12], OrdinalEncoder().fit_transform(taitanic_tr
 # MAGIC 
 # MAGIC * 对于数值型的特征中，特征的属性是无序的，用独热编码/哑变量，比如：性别、颜色、星期
 # MAGIC * 对于数值型的特征中，特征的属性是有序的，用标签编码（LabelEncoder），比如：公司的成立时间
+
+# COMMAND ----------
+
+from sklearn.preprocessing import OneHotEncoder
+
+taitanic_train_onehot = taitanic_train.copy()
+
+taitanic_train_onehot.head()
+
+# COMMAND ----------
+
+X = taitanic_train_onehot.iloc[:,11:12]
+
+enc = OneHotEncoder(categories='auto').fit(X)
+result = enc.transform(X).toarray()
+result.shape
+
+# COMMAND ----------
+
+# 也可以一步到位
+OneHotEncoder(categories='auto').fit_transform(X).toarray()
+
+# COMMAND ----------
+
+# 获取新特征的名称
+enc.get_feature_names()
+
+# COMMAND ----------
+
+# axis=1，表示跨行进行合并，也就是将量表左右相连，如果是axis=0，就是将量表上下相连
+# pd.concat(axis=1)，基于行index值对数据集进行拼接，所以要求被拼接的数据集具有相同的行index，如果行index不同，则拼接后的结果具有空行数据
+display(pd.concat([taitanic_train_onehot,pd.DataFrame(result)],axis=1))
+display(pd.concat([taitanic_train_onehot.reset_index(),pd.DataFrame(result)],axis=1))
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 特征可以做哑变量，标签也可以吗？可以，使用类sklearn.preprocessing.LabelBinarizer可以对标签做哑变量，许多算法都可以处理多标签问题（比如说决策树），但是这样的做法在现实中不常见。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 总结
+# MAGIC 
+# MAGIC | 编码与哑变量 | 功能 | 重要参数 | 重要属性 | 重要接口 |
+# MAGIC | ----- | ----- | ----- | ----- | ----- |
+# MAGIC | LabelEncoder| 分类标签编码 | N/A | classes_：查看标签中究竟有多少类别 | fit<br>transform<br>fit_transform<br>inverse_transform |
+# MAGIC | OrdinalEncoder | 分类特征编码 | N/A | categories_：查看特征中究竟有多少类别 | fit<br>transform<br>fit_transform<br>inverse_transform |
+# MAGIC | OneHotEncoder | 独热编码，为名义变量创建哑变量 | **categories**：每个特征都有哪些类别，默认"auto"表示让算法自己判断，或者可以输入列表，每个元素都是一个列表，表示每个特征中的不同类别 <br><br>**handle_unknown**：当输入了categories，且算法遇见了categories中没有写明的特征或类别时，是否报错。默认"error"表示报错，也可以选择"ignore"表示请忽视。如果选择"ignore"则未在categories中注明的特征或类别的哑变量会全部显示为0。在inverse_transform中，未知特征或类别会被返回None。 | categories_：查看特征中究竟有多少类别 | fit<br>transform<br>fit_transform<br>inverse_transform<br>get_feature_names：查看生成的哑变量的每一列都是什么特征的什么取值 |
 
 # COMMAND ----------
 

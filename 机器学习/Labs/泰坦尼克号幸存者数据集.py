@@ -34,12 +34,6 @@
 
 # COMMAND ----------
 
-# MAGIC %sh
-# MAGIC 
-# MAGIC ls -al /Workspace/Repos/wux_labs@outlook.com
-
-# COMMAND ----------
-
 import pandas as pd
 
 df_train = pd.read_csv("../../Datasets/taitanic_train.csv")
@@ -342,6 +336,14 @@ df_train['fare_cut'].unique()
 
 # MAGIC %md
 # MAGIC ### 类别型特征
+# MAGIC 
+# MAGIC 在机器学习中，大多数算法，譬如逻辑回归，支持向量机SVM，K近邻算法等都只能够处理数值型数据，不能处理文字，在sklearn当中，除了专用来处理文字的算法，其他算法在fit的时候全部要求输入数组或矩阵，也不能够导入文字型数据（其实手写决策树和普斯贝叶斯可以处理文字，但是sklearn中规定必须导入数值型）。然而在现实中，许多标签和特征在数据收集完毕的时候，都不是以数字来表现的。
+# MAGIC 
+# MAGIC 在这种情况下，为了让数据适应算法和库，我们必须将数据进行编码，即是说，将文字型数据转换为数值型。
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC 
 # MAGIC * 类别型：OneHot encoding/独热向量编码
 # MAGIC   * pandas get_dummies/哑变量
