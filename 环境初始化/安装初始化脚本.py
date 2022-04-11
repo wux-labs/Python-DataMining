@@ -11,8 +11,8 @@ dbutils.fs.put("dbfs:/databricks/scripts/initialization.sh",
 #!/bin/bash
 
 # install dependent packages
-sudo apt-get install -y python3-dev graphviz libgraphviz-dev pkg-config
-sudo pip install graphviz pygraphviz
+# sudo apt-get install -y python3-dev graphviz libgraphviz-dev pkg-config
+# sudo pip install graphviz pygraphviz
 
 """, True)
 

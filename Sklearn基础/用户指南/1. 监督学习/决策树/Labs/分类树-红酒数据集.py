@@ -14,7 +14,6 @@ from sklearn.datasets import load_wine
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import matplotlib.pyplot as plt
-import graphviz
 
 # COMMAND ----------
 
@@ -110,6 +109,8 @@ plt.figure(figsize=(20,10))
 tree.plot_tree(clf,filled=True,rounded=True,feature_names=feature_names,class_names=class_names)
 
 # COMMAND ----------
+
+import graphviz
 
 dot_data = tree.export_graphviz(clf, feature_names=feature_names, class_names=class_names, filled=True, rounded=True)
 
