@@ -877,7 +877,15 @@ plt.plot(range(390, 200, -10), score)
 # MAGIC 
 # MAGIC **卡方检验**就是统计样本的实际观测值与理论推断值之间的偏离程度，实际观测值与理论推断值之间的偏离程度就决定卡方值的大小，如果卡方值越大，二者偏差程度越大；反之，二者偏差越小；若两个值完全相等时，卡方值就为0，表明理论值完全符合。
 # MAGIC 
-# MAGIC 卡方检验的本质是推测两组数据之间的差异，其检验的原假设是“两组数据是相互独立的”。卡方检验返回卡方值和P值两个统计量，其中卡方值很难界定有效范围，但P值，我们一般使用0.01或0.05作为显著性水平，即P值判断的边界。
+# MAGIC **卡方检验**是以![](https://www.zhihu.com/equation?tex=%5Cchi%5E2)分布为基础的一种常用假设检验方法，它的无效假设![](https://www.zhihu.com/equation?tex=H_0)是：**观察频数与期望频数没有差别**。该检验的基本思想是：首先假设![](https://www.zhihu.com/equation?tex=H_0)成立，基于此前提计算出![](https://www.zhihu.com/equation?tex=%5Cchi%5E2)值，它表示观察值与理论值之间的偏离程度。根据![](https://www.zhihu.com/equation?tex=%5Cchi%5E2)分布及自由度可以确定在![](https://www.zhihu.com/equation?tex=H_0)假设成立的情况下获得当前统计量及更极端情况的概率![](https://www.zhihu.com/equation?tex=P)。如果当前统计量大于![](https://www.zhihu.com/equation?tex=P)值，说明观察值与理论值偏离程度太大，应当拒绝无效假设，表示比较资料之间有显著差异；否则就不能拒绝无效假设，尚不能认为样本所代表的实际情况和理论假设有差别。
+# MAGIC 
+# MAGIC 卡方值计算公式：
+# MAGIC 
+# MAGIC ![](https://www.zhihu.com/equation?tex=%5Cchi%5E2%3D%5Csum_%7Bi%3D1%7D%5En%5Cfrac%7B%28real-theory%29%5E2%7D%7Btheory%7D)
+# MAGIC 
+# MAGIC 卡方检验是以![](https://www.zhihu.com/equation?tex=%5Cchi%5E2)分布为基础的一种常用假设检验方法，![](https://www.zhihu.com/equation?tex=%5Cchi%5E2)分布，就叫做**卡方分布**。
+# MAGIC 
+# MAGIC 卡方检验的本质是推测两组数据之间的差异，其检验的原假设是“两组数据是相互独立的”。卡方检验返回卡方值和![](https://www.zhihu.com/equation?tex=P)值两个统计量，其中卡方值很难界定有效范围，但![](https://www.zhihu.com/equation?tex=P)值，我们一般使用0.01或0.05作为显著性水平，即![](https://www.zhihu.com/equation?tex=P)值判断的边界。
 # MAGIC 
 # MAGIC | P值 | <= 0.05或0.01 | > 0.05或0.01 |
 # MAGIC | ----- | ----- | ----- |
@@ -885,9 +893,9 @@ plt.plot(range(390, 200, -10), score)
 # MAGIC | 相关性 | 两组数据是相关的 | 两组数据是相互独立的 |
 # MAGIC | 原假设 | 拒绝原假设，接受备择假设 | 接受原假设 |
 # MAGIC 
-# MAGIC 从特征工程的角度，我们希望选取卡方值很大、P值小于0.05的特征，即和标签是相关联的特征。
+# MAGIC 从特征工程的角度，我们希望选取卡方值很大、![](https://www.zhihu.com/equation?tex=P)值小于0.05的特征，即和标签是相关联的特征。
 # MAGIC 
-# MAGIC 我们可以直接从chi2实例化后的模型中获得各个特征所对应的卡方值和P值。
+# MAGIC 我们可以直接从chi2实例化后的模型中获得各个特征所对应的卡方值和![](https://www.zhihu.com/equation?tex=P)值。
 
 # COMMAND ----------
 
@@ -909,4 +917,55 @@ chivalue, pvalues_chi, K
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### F检验
+# MAGIC #### 方差齐性检验
+# MAGIC 
+# MAGIC **方差齐性**是方差分析和一些均数比较![](https://www.zhihu.com/equation?tex=t)检验的重要前提，**利用![](https://www.zhihu.com/equation?tex=F)检验进行方差齐性检验是最原始的**，但对数据要求比较高。
+# MAGIC 
+# MAGIC 要求：**样本来自两个独立的、服从正态分布的总体**。
+# MAGIC 
+# MAGIC **检验原理**
+# MAGIC 
+# MAGIC 记两独立总体为：
+# MAGIC 
+# MAGIC ![](https://www.zhihu.com/equation?tex=X_1%5Csim+N%28%5Cmu_1%2C%5Csigma_1%5E2%29%2C%5Cquad+X_2%5Csim+N%28%5Cmu_2%2C%5Csigma_2%5E2%29)
+# MAGIC 
+# MAGIC 从两总体中抽取的样本为：
+# MAGIC 
+# MAGIC ![](https://www.zhihu.com/equation?tex=X_%7B1i%7D%28i%3D1%2C2%2C%5Ccdots%2Cn_1%29%2C%5Cquad+X_%7B2j%7D%28j%3D1%2C2%2C%5Ccdots%2Cn_2%29)
+# MAGIC 
+# MAGIC 定义样本均值和样本方差：
+# MAGIC 
+# MAGIC ![](https://www.zhihu.com/equation?tex=%5Cbar+X_1%3D%5Cfrac%7B1%7D%7Bn_1%7D%5Csum_%7Bi%3D1%7D%5E%7Bn_1%7DX_%7Bi1%7D%2C%5Cquad+s_1%5E2%3D%5Cfrac%7B1%7D%7Bn_1-1%7D%5Csum_%7Bi%3D1%7D%5E%7Bn_1%7D%28X_%7Bi1%7D-%5Cbar+X_1%29%5E2)
+# MAGIC 
+# MAGIC ![](https://www.zhihu.com/equation?tex=%5Cbar+X_2%3D%5Cfrac%7B1%7D%7Bn_2%7D%5Csum_%7Bi%3D1%7D%5E%7Bn_2%7DX_%7Bi2%7D%2C%5Cquad+s_2%5E2%3D%5Cfrac%7B1%7D%7Bn_2-1%7D%5Csum_%7Bi%3D1%7D%5E%7Bn_2%7D%28X_%7Bi2%7D-%5Cbar+X_2%29%5E2)
+# MAGIC 
+# MAGIC 方差齐性双侧检验的原假设和备择假设：
+# MAGIC 
+# MAGIC > ![](https://www.zhihu.com/equation?tex=H_0%3A%5Csigma_1%5E2%3D%5Csigma_2%5E2)，即两总体方差相等  
+# MAGIC ![](https://www.zhihu.com/equation?tex=H_1%3A%5Csigma_1%5E2%5Cneq%5Csigma_2%5E2)，即两总体方差不等
+# MAGIC 
+# MAGIC 由![](https://www.zhihu.com/equation?tex=F)分布的构造定义：
+# MAGIC 
+# MAGIC ![](https://www.zhihu.com/equation?tex=%5Cfrac%7Bs_1%5E2%2F%5Csigma_1%5E2%7D%7Bs_2%5E2%2F%5Csigma_2%5E2%7D%5Csim+F%28n_1-1%2Cn_2-1%29)
+# MAGIC 
+# MAGIC 其中![](https://www.zhihu.com/equation?tex=n_1-1)、![](https://www.zhihu.com/equation?tex=n_2-1)分别为**分子自由度**和**分母自由度**。
+# MAGIC 
+# MAGIC 在![](https://www.zhihu.com/equation?tex=H_0)成立的条件下，即![](https://www.zhihu.com/equation?tex=%5Csigma_1%5E2%3D%5Csigma_2%5E2)成立的条件下：
+# MAGIC 
+# MAGIC ![](https://www.zhihu.com/equation?tex=%5Cfrac%7Bs_1%5E2%7D%7Bs_2%5E2%7D%5Csim+F%28n_1-1%2Cn_2-1%29)
+# MAGIC 
+# MAGIC 一般约定取较大的方差作为分子，较小的方差作为分母，这样计算出来的![](https://www.zhihu.com/equation?tex=F%3E1)，缩小了范围，便于查表做出结论。给定显著性水平![](https://www.zhihu.com/equation?tex=%5Calpha)，利用样本数据计算统计量![](https://www.zhihu.com/equation?tex=F_1%3D%5Cfrac%7Bs_1%5E2%7D%7Bs_2%5E2%7D)，若![](https://www.zhihu.com/equation?tex=F_1%3EF_%7B%5Calpha%2C%28n_1-1%2Cn_2-1%29%7D)，这在一次抽样中几乎是不可能发生的（其发生的可能性为![](https://www.zhihu.com/equation?tex=p)值）此时拒绝原假设，认为方差不齐，否则就不拒绝原假设（即认为方差齐）。
+# MAGIC 
+# MAGIC 对于单侧检验：
+# MAGIC 
+# MAGIC > ![](https://www.zhihu.com/equation?tex=H_0%3A%5Csigma_1%5E2%3C%5Csigma_2%5E2)  
+# MAGIC ![](https://www.zhihu.com/equation?tex=H_1%3A%5Csigma_1%5E2%5Cgeq%5Csigma_2%5E2)
+# MAGIC 
+# MAGIC 若利用样本计算出来的统计量![](https://www.zhihu.com/equation?tex=%5Cfrac%7Bs_1%5E2%7D%7Bs_2%5E2%7D%3DF_2%3EF_%7B%5Calpha%2C%28n_1-1%2Cn_2-1%29%7D)，则拒绝原假设，否则不拒绝原假设。
+# MAGIC 
+# MAGIC 对于单侧检验：
+# MAGIC 
+# MAGIC > ![](https://www.zhihu.com/equation?tex=H_0%3A%5Csigma_2%5E2%3C%5Csigma_1%5E2)  
+# MAGIC ![](https://www.zhihu.com/equation?tex=H_1%3A%5Csigma_2%5E2+%5Cgeq+%5Csigma_1%5E2)
+# MAGIC 
+# MAGIC 若![](https://www.zhihu.com/equation?tex=%5Cfrac%7Bs_1%5E2%7D%7Bs_2%5E2%7D%3DF3%3C%7BF_%7B1-%5Calpha%2C%28n_1-1%2Cn_2-1%29%7D%7D)，则拒绝原假设，否则不拒绝原假设。

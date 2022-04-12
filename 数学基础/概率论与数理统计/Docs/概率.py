@@ -250,6 +250,24 @@
 
 # COMMAND ----------
 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy import stats
+from scipy.stats import norm
+
+x =  np.linspace(-10, 20, 400)
+
+plt.figure(figsize=(20,10))
+
+for mu in [1, 7]:
+    for sigma in [1, 2, 3]:
+        plt.plot(x, [norm.pdf(x, mu, sigma) for i in x][0],label='概率密度函数：mu={},sigma={}'.format(mu, sigma))
+
+plt.legend()
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ##### 标准正态分布
 # MAGIC 
@@ -283,6 +301,23 @@
 
 # COMMAND ----------
 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy import stats
+from scipy.stats import norm
+
+x =  np.linspace(-10, 10, 400)
+
+plt.figure(figsize=(20,10))
+
+plt.plot(x, [norm.pdf(x, 0, 1) for i in x][0],label='概率密度函数：mu={},sigma={}'.format(0, 1))
+plt.plot(x, [norm.cdf(x, 0, 1) for i in x][0],label='概率分布函数：mu={},sigma={}'.format(0, 1))
+
+plt.legend()
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ##### 卡方分布
 # MAGIC 
@@ -292,8 +327,31 @@
 # MAGIC 
 # MAGIC 对于任意正整数![](https://www.zhihu.com/equation?tex=x)， 自由度为![](https://www.zhihu.com/equation?tex=v)的卡方分布是一个随机变量![](https://www.zhihu.com/equation?tex=X)的机率分布。
 # MAGIC 
+# MAGIC 卡方分布的概率密度函数为：
+# MAGIC 
+# MAGIC ![](https://www.zhihu.com/equation?tex=p%28x%29%3D%5Cbegin%7Bcases%7D+%5Cfrac%7B1%7D%7B2%5E%7Bn/2%7D%5CGamma%28n/2%29%7Dx^%7B%5Cfrac%7Bn%7D%7B2%7D-1%7De^%7B-%5Cfrac%7Bx%7D%7B2%7D%7D%2C%5Cquad+x%3E0%5C%5C%5C%5C+0%2C%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad%5Cquad+%E5%85%B6%E4%BB%96%5Cend%7Bcases%7D)
+# MAGIC 
 # MAGIC > 数学期望： 自由度![](https://www.zhihu.com/equation?tex=v)，![](https://www.zhihu.com/equation?tex=E%28%5Cchi^2%28v%29%29%3Dv)  
 # MAGIC 方差： 自由度![](https://www.zhihu.com/equation?tex=v)的2倍，![](https://www.zhihu.com/equation?tex=D%28%5Cchi^2%29%3D2v) 
+
+# COMMAND ----------
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy import stats
+from scipy.stats import chi2
+
+x =  np.linspace(-2, 2, 200)
+
+plt.figure(figsize=(20,10))
+
+plt.plot(x, [chi2.pdf(x, 1) for i in x][0],label='概率密度函数')
+plt.plot(x, [chi2.cdf(x, 1) for i in x][0],label='概率分布函数')
+plt.plot(x, [chi2.mean(x) for i in x][0],label='期望')
+plt.plot(x, [chi2.var(x) for i in x][0],label='方差')
+
+plt.legend()
 
 # COMMAND ----------
 
