@@ -1,5 +1,37 @@
 # Databricks notebook source
 # MAGIC %md
+# MAGIC # 希腊字母表
+# MAGIC 
+# MAGIC | 序号 | 大写 | 小写 | 英文注音 | 国际音标注音 | 中文读音 | 意义 |
+# MAGIC | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
+# MAGIC | 1 | Α | α | alpha | /ˈælfə/ | 阿尔法 | 角度；系数 |
+# MAGIC | 2 | Β | β | beta | /'beitə/ | 贝塔 | 磁通系数；角度；系数 |
+# MAGIC | 3 | Γ | γ | gamma | /'gæmə/ | 伽马 | 电导系数（小写） |
+# MAGIC | 4 | Δ | δ | delta | /'deltə/ | 德尔塔 | 变动；密度；屈光度 |
+# MAGIC | 5 | Ε | ε | epsilon | /ep'silɒn/ | 伊普西龙 | 对数之基数 |
+# MAGIC | 6 | Ζ | ζ | zeta | /'zi:tə/ | 截塔 | 系数；方位角；阻抗；相对粘度；原子序数 |
+# MAGIC | 7 | Η | η | eta | /'i:tə/ | 艾塔 | 磁滞系数；效率（小写） |
+# MAGIC | 8 | Θ | θ | theta | /'θi:tə/ | 西塔 | 温度；相位角 |
+# MAGIC | 9 | Ι | ι | iota | /ai'əute/ | 约塔 | 微小，一点儿 |
+# MAGIC | 10 | Κ | κ | kappa | /'kæpə/ | 卡帕 | 介质常数 |
+# MAGIC | 11 | Λ | λ | lambda | /'læmdə/ | 兰布达 | 波长（小写）；体积 |
+# MAGIC | 12 | Μ | μ | mu | /mju:/ | 缪 | 磁导系数微（千分之一）放大因数（小写） |
+# MAGIC | 13 | Ν | ν | nu | /nju:/ | 纽 | 磁阻系数 |
+# MAGIC | 14 | Ξ | ξ | xi | /ksi/ | 克西 | 数学上的随机变量 |
+# MAGIC | 15 | Ο | ο | omicron | /əumaik'rɒn/ | 奥密克戎 | 高阶无穷小函数 |
+# MAGIC | 16 | Π | π | pi | /pai/ | 派 | 圆周率=圆周÷直径=3.14159 26535 89793 |
+# MAGIC | 17 | Ρ | ρ | rho | /rou/ | 肉 | 电阻系数（小写）、密度（小写） |
+# MAGIC | 18 | Σ | σ | sigma | /'sigmə/ | 西格马 | 总和（大写），表面密度；跨导（小写） |
+# MAGIC | 19 | Τ | τ | tau | /tau/ | 套 | 时间常数 |
+# MAGIC | 20 | Υ | υ | upsilon | /ʌp'sailən/ | 艾普西龙 | 位移 |
+# MAGIC | 21 | Φ | φ | phi | /fai/ | 佛爱 | 磁通；角 |
+# MAGIC | 22 | Χ | χ | chi | /kai/ | 西 | 统计学中有卡方(χ2)分布 |
+# MAGIC | 23 | Ψ | ψ | psi | /psai/ | 普塞 | 角速；介质电通量（静电力线）；角 |
+# MAGIC | 24 | Ω | ω | omega | /'əumigə/ | 欧米伽 | 欧姆（大写）；角速（小写）；角 |
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC # 单个符号
 # MAGIC 
 # MAGIC https://www.tsfhdq.cn/mfjc3/1132.html
