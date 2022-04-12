@@ -797,3 +797,116 @@ cross_val_score(RFC(n_estimators=10, random_state=0), X_fsvar, y, cv=5).mean()
 # MAGIC **我们怎么知道，方差过滤掉的到底是噪音还是有效特征呢？过滤后的模型到底会变好还是会变坏呢？**
 # MAGIC 
 # MAGIC 每个数据集都不一样，只能自己尝试。这里的方差阈值，其实相当于是一个超参数，要选定最优的超参数，我们可以画学习曲线，找模型效果最好的点。但现实中，我们往往不会这样去做，因为这样会耗费大量的时间。我们只会使用阈值为0或者阈值很小的方差过滤，来为我们优先消除一些明显用不到的特征，然后我们会选择更优的特征选择方法继续削减特征数量。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### 相关性过滤
+# MAGIC 
+# MAGIC 我们希望挑选出与标签相关且有意义的特征，因为这样的特征能够为我们提供大量的信息。如果特征与模型无关，那只会浪费我们的计算资源，并且还可能带来噪音。
+# MAGIC 
+# MAGIC 有三种常用的方法来评判特征与标签之间的相关性：卡方、F检验、互信息。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 卡方过滤
+# MAGIC 
+# MAGIC 卡方过滤是专门针对离散型标签（即分类问题）的相关性过滤。卡方检验类feature_selection.chi2计算每个非负特征和标签之间的卡方统计量，并依照卡方统计量由高到低为特征排名。再结合feature_selection.SelectKBset这个可以输入“评分标准”来选出前K个分数最高的特征的类，我们可以借此除去最可能独立于标签、与我们分类目的无关的特征。
+# MAGIC 
+# MAGIC 如果卡方检验检测到某个特征中所有的值都相同，会提示我们使用方差先进行方差过滤。
+
+# COMMAND ----------
+
+from sklearn.ensemble import RandomForestClassifier as RFC
+from sklearn.feature_selection import VarianceThreshold, SelectKBest, chi2
+from sklearn.model_selection import cross_val_score
+import numpy as np
+import zipfile
+import pandas as pd
+
+digit_recognizer_train = pd.read_csv("../../Datasets/digit_recognizer_train.zip",compression='zip')
+
+X = digit_recognizer_train.iloc[:,1:]
+y = digit_recognizer_train.iloc[:,0]
+
+X_fsvar = VarianceThreshold(np.median(X.var().values)).fit_transform(X)
+
+X.shape, X_fsvar.shape
+
+# COMMAND ----------
+
+# 假设我们需要300个特征
+X_fschi = SelectKBest(chi2, k=300).fit_transform(X_fsvar, y)
+X_fschi.shape
+
+# COMMAND ----------
+
+# 验证一下模型效果
+cross_val_score(RFC(n_estimators=10, random_state=0), X_fschi, y, cv=5).mean()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 可以看出，模型的效果降低了，这说明我们在设定k=300的时候删除了与模型相关且有效的特征，我们的K值设置得太小，要么我们需要调整K值，要么我们必须放弃相关性过滤。如果模型的表现是提升的，我们就保留相关性过滤的结果。
+# MAGIC 
+# MAGIC 那么，我们怎么能够知道K值该取多少合适？下面还是用学习曲线来看看结果。
+
+# COMMAND ----------
+
+import matplotlib.pyplot as plt
+
+score = []
+for i in range(390, 200, -10):
+    X_fschi = SelectKBest(chi2, k=i).fit_transform(X_fsvar, y)
+    score.append(cross_val_score(RFC(n_estimators=10, random_state=0), X_fschi, y, cv=5).mean())
+
+plt.plot(range(390, 200, -10), score)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 通过这条曲线，我们可以观察到，随着K值的不断增加，模型的表现不断上升，这说明数据中所有特征都与标签相关。
+# MAGIC 
+# MAGIC 学习曲线运行的时间非常长，我们可以通过其他更好的方法来选择K值。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 卡方检验
+# MAGIC 
+# MAGIC **卡方检验**就是统计样本的实际观测值与理论推断值之间的偏离程度，实际观测值与理论推断值之间的偏离程度就决定卡方值的大小，如果卡方值越大，二者偏差程度越大；反之，二者偏差越小；若两个值完全相等时，卡方值就为0，表明理论值完全符合。
+# MAGIC 
+# MAGIC 卡方检验的本质是推测两组数据之间的差异，其检验的原假设是“两组数据是相互独立的”。卡方检验返回卡方值和P值两个统计量，其中卡方值很难界定有效范围，但P值，我们一般使用0.01或0.05作为显著性水平，即P值判断的边界。
+# MAGIC 
+# MAGIC | P值 | <= 0.05或0.01 | > 0.05或0.01 |
+# MAGIC | ----- | ----- | ----- |
+# MAGIC | 数据差异 | 差异不是自然形成的 | 这些差异是很自然的样本误差 |
+# MAGIC | 相关性 | 两组数据是相关的 | 两组数据是相互独立的 |
+# MAGIC | 原假设 | 拒绝原假设，接受备择假设 | 接受原假设 |
+# MAGIC 
+# MAGIC 从特征工程的角度，我们希望选取卡方值很大、P值小于0.05的特征，即和标签是相关联的特征。
+# MAGIC 
+# MAGIC 我们可以直接从chi2实例化后的模型中获得各个特征所对应的卡方值和P值。
+
+# COMMAND ----------
+
+chivalue, pvalues_chi = chi2(X_fsvar, y)
+
+# K值取多少？
+# 特征个数 - P值大于0.05的特征的个数
+K = chivalue.shape[0] - (pvalues_chi > 0.05).sum()
+
+chivalue, pvalues_chi, K
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 可以观察到，所有特征的P值都是0，这说明对于digit recognizor这个数据集来说，方差检验已经把所有和标签无关的特征都剔除了，或者这个数据集本身就不含有与标签无关的特征。在这种情况下，舍弃任何一个特征，都会舍弃对模型有用的信息，而使模型表现下降。因此我们可以衡量计算速度与模型表现，酌情删除一些特征。
+# MAGIC 
+# MAGIC 当然，我们还可以通过其他的一些验证方法来验证数据集中特征与标签的相关性。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### F检验
