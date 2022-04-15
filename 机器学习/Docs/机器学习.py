@@ -611,7 +611,12 @@ X.head()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## 过滤法
+# MAGIC ## 特征选择
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### 过滤法
 # MAGIC 
 # MAGIC 过滤法通常用作预处理步骤，特征选择完全独立于任何机器学习算法。它是根据各种统计检验中的分数以及相关性的各项指标来选择特征。
 # MAGIC 
@@ -620,12 +625,12 @@ X.head()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### 方差过滤
+# MAGIC #### 方差过滤
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### VariabceThreshold
+# MAGIC ##### VariabceThreshold
 # MAGIC 
 # MAGIC 这是通过特征本身的方差来筛选特征的类。比如一个特征本身的方差很小，就表示样本在这个特征上基本没有差异，可能特征中的大多数值都一样，甚至整个特征的取值都相同，那这个特征对于样本区分没有什么作用。**所以无论接下来的特征工程要做什么，都要优先消除方差为0的特征**。VarianceThreshold 有重要参数 **threshold** ，表示方差的阈值，表示舍弃所有方差小于 threshold 的特征，不填的话默认是0，即删除所有的记录都相同的特征。
 
@@ -671,7 +676,7 @@ X_2.shape
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### 方差过滤对模型的影响
+# MAGIC ##### 方差过滤对模型的影响
 # MAGIC 
 # MAGIC 我们这样做了以后，多模型效果会有怎样的影响呢？
 # MAGIC 
@@ -699,7 +704,7 @@ X.shape, X_fsvar.shape
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### KNN 方差过滤前
+# MAGIC ###### KNN 方差过滤前
 
 # COMMAND ----------
 
@@ -714,7 +719,7 @@ cross_val_score(KNN(), X, y, cv=5).mean()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### KNN 方差过滤后
+# MAGIC ###### KNN 方差过滤后
 
 # COMMAND ----------
 
@@ -729,7 +734,7 @@ cross_val_score(KNN(), X_fsvar, y, cv=5).mean()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### RFC 方差过滤前
+# MAGIC ###### RFC 方差过滤前
 
 # COMMAND ----------
 
@@ -744,7 +749,7 @@ cross_val_score(RFC(n_estimators=10, random_state=0), X, y, cv=5).mean()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### RFC 方差过滤后
+# MAGIC ###### RFC 方差过滤后
 
 # COMMAND ----------
 
@@ -759,7 +764,7 @@ cross_val_score(RFC(n_estimators=10, random_state=0), X_fsvar, y, cv=5).mean()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### 结论
+# MAGIC ###### 结论
 # MAGIC 
 # MAGIC 为什么随机森林运行如此之快？为什么方差过滤对随机森林没有很大的影响？
 # MAGIC 
@@ -770,7 +775,7 @@ cross_val_score(RFC(n_estimators=10, random_state=0), X_fsvar, y, cv=5).mean()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### 思考
+# MAGIC ###### 思考
 # MAGIC 
 # MAGIC **过滤法对随机森林无效，却对树模型有效？**
 # MAGIC 
@@ -792,7 +797,7 @@ cross_val_score(RFC(n_estimators=10, random_state=0), X_fsvar, y, cv=5).mean()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### 思考
+# MAGIC ###### 思考
 # MAGIC 
 # MAGIC **我们怎么知道，方差过滤掉的到底是噪音还是有效特征呢？过滤后的模型到底会变好还是会变坏呢？**
 # MAGIC 
@@ -801,7 +806,7 @@ cross_val_score(RFC(n_estimators=10, random_state=0), X_fsvar, y, cv=5).mean()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### 相关性过滤
+# MAGIC #### 相关性过滤
 # MAGIC 
 # MAGIC 我们希望挑选出与标签相关且有意义的特征，因为这样的特征能够为我们提供大量的信息。如果特征与模型无关，那只会浪费我们的计算资源，并且还可能带来噪音。
 # MAGIC 
@@ -809,17 +814,8 @@ cross_val_score(RFC(n_estimators=10, random_state=0), X_fsvar, y, cv=5).mean()
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC #### 卡方过滤
-# MAGIC 
-# MAGIC 卡方过滤是专门针对离散型标签（即分类问题）的相关性过滤。卡方检验类feature_selection.chi2计算每个非负特征和标签之间的卡方统计量，并依照卡方统计量由高到低为特征排名。再结合feature_selection.SelectKBset这个可以输入“评分标准”来选出前K个分数最高的特征的类，我们可以借此除去最可能独立于标签、与我们分类目的无关的特征。
-# MAGIC 
-# MAGIC 如果卡方检验检测到某个特征中所有的值都相同，会提示我们使用方差先进行方差过滤。
-
-# COMMAND ----------
-
 from sklearn.ensemble import RandomForestClassifier as RFC
-from sklearn.feature_selection import VarianceThreshold, SelectKBest, chi2
+from sklearn.feature_selection import VarianceThreshold, SelectKBest
 from sklearn.model_selection import cross_val_score
 import numpy as np
 import zipfile
@@ -836,6 +832,16 @@ X.shape, X_fsvar.shape
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC ##### 卡方过滤
+# MAGIC 
+# MAGIC 卡方过滤是专门针对离散型标签（即分类问题）的相关性过滤。卡方检验类feature_selection.chi2计算每个非负特征和标签之间的卡方统计量，并依照卡方统计量由高到低为特征排名。再结合feature_selection.SelectKBset这个可以输入“评分标准”来选出前K个分数最高的特征的类，我们可以借此除去最可能独立于标签、与我们分类目的无关的特征。
+# MAGIC 
+# MAGIC 如果卡方检验检测到某个特征中所有的值都相同，会提示我们使用方差先进行方差过滤。
+
+# COMMAND ----------
+
+from sklearn.feature_selection import chi2
 # 假设我们需要300个特征
 X_fschi = SelectKBest(chi2, k=300).fit_transform(X_fsvar, y)
 X_fschi.shape
@@ -873,7 +879,7 @@ plt.plot(range(390, 200, -10), score)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### 卡方检验
+# MAGIC ##### 卡方检验
 # MAGIC 
 # MAGIC **卡方检验**就是统计样本的实际观测值与理论推断值之间的偏离程度，实际观测值与理论推断值之间的偏离程度就决定卡方值的大小，如果卡方值越大，二者偏差程度越大；反之，二者偏差越小；若两个值完全相等时，卡方值就为0，表明理论值完全符合。
 # MAGIC 
@@ -917,7 +923,7 @@ chivalue, pvalues_chi, K
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### 方差齐性检验
+# MAGIC ##### 方差齐性检验
 # MAGIC 
 # MAGIC **方差齐性**是方差分析和一些均数比较![](https://www.zhihu.com/equation?tex=t)检验的重要前提，**利用![](https://www.zhihu.com/equation?tex=F)检验进行方差齐性检验是最原始的**，但对数据要求比较高。
 # MAGIC 
@@ -969,3 +975,184 @@ chivalue, pvalues_chi, K
 # MAGIC ![](https://www.zhihu.com/equation?tex=H_1%3A%5Csigma_2%5E2+%5Cgeq+%5Csigma_1%5E2)
 # MAGIC 
 # MAGIC 若![](https://www.zhihu.com/equation?tex=%5Cfrac%7Bs_1%5E2%7D%7Bs_2%5E2%7D%3DF3%3C%7BF_%7B1-%5Calpha%2C%28n_1-1%2Cn_2-1%29%7D%7D)，则拒绝原假设，否则不拒绝原假设。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### F检验
+
+# COMMAND ----------
+
+from sklearn.feature_selection import f_classif
+
+fvalue, pvalues_f = f_classif(X_fsvar, y)
+
+# K值取多少？
+# 特征个数 - P值大于0.05的特征的个数
+K = fvalue.shape[0] - (pvalues_f > 0.05).sum()
+
+fvalue, pvalues_f, K
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### 互信息法
+
+# COMMAND ----------
+
+from sklearn.feature_selection import mutual_info_classif as MIC
+
+result = MIC(X_fsvar, y)
+
+# K值取多少？
+# 特征个数 - P值大于0.05的特征的个数
+K = result.shape[0] - sum(result <= 0)
+
+result, K
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 过滤法总结
+# MAGIC 
+# MAGIC | 类 | 说明 | 超参数的选择 |
+# MAGIC | ----- | ----- | ----- |
+# MAGIC | VarianceThreshold | 方差过滤，可输入方差阈值，返回方差大于阈值的新特征矩阵 | 看具体数据究竟是含有更多噪声还是更多有效特征<br>一般就使用0或1来筛选<br>也可以画学习曲线或取中位数跑模型来确认 |
+# MAGIC | SelectKBest | 用来选取K个统计量结果最佳的特征，生成符合统计量要求的新特征矩阵 | 看配合使用的统计量 |
+# MAGIC | chi2 | 卡方检验，专用于分类算法，捕捉相关性 | 追求P小于显著性水平的特征 |
+# MAGIC | f_classif | F检验分类，只能捕捉线性相关性<br>要求数据服从正太分布 | 追求P小于显著性水平的特征 |
+# MAGIC | f_regression | F检验回归，只能捕捉线性相关性<br>要求数据服从正太分布 | 追求P小于显著性水平的特征 |
+# MAGIC | mutual_info_classif | 互信息分类，可以捕捉任何相关性<br>不能用于稀疏矩阵 | 追求互信息估计大于0的特征 |
+# MAGIC | mutual_info_regression | 互信息回归，可以捕捉任何相关性<br>不能用于稀疏矩阵 | 追求互信息估计大于0的特征 |
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### 嵌入法
+# MAGIC 
+# MAGIC **嵌入法**是一种让算法自己决定使用哪些特征的方法，即**特征选择和模型训练同时进行**。在使用嵌入法时，我们先使用某些机器学习的算法或模型进行训练，得到各个特征的权值系数(0-1之间)。这些权值系数往往代表了特征对模型的贡献或者说重要性。比如决策树的`feature_importance_`属性。可以列出每个特征对决策树建立的贡献，我们可以基于这种贡献的评估，找出对模型建立更加有用的特征。因此相比于过滤法，**嵌入法的结果会更加精确到模型的效用本身**，对提高模型效果有更好的作用。由于嵌入法考虑特征对模型的贡献，一些无关的特征(需要相关性过滤的特征)和一些区分度不大的特征(需要方差过滤的特征)，都会因为缺乏对模型的贡献而被删除掉。可以说嵌入法是过滤法的进阶版。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 嵌入法的缺点
+# MAGIC 
+# MAGIC 过滤法中使用的统计量可以使用统计知识和常识来查找范围（如P值应当低于显著性水平0.05），而嵌入法中使用的权值系数却没有这样的范围可找。我们可以说，权值系数为0的特征对模型丝毫没有作用，但当大量特征都对模型有贡献且贡献不一时，我们就很难去界定一个有效的临界值。这种情况下，模型权值系数就是我们的超参数，我们或许需要学习曲线，或者根据模型本身的某些性质去判断这个超参数的最佳值究竟应该是多少。
+# MAGIC 
+# MAGIC 另外，嵌入法引入了算法来挑选特征，并且每次挑选都会使用全部特征，因此其计算速度也会和应用的算法有很大的关系。如果采用计算量很大，计算缓慢的算法，比如KNN，嵌入法本身也会非常耗时耗力。并且，在选择完毕之后，我们还是需要自己来评估模型。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### SelectFromModel
+# MAGIC 
+# MAGIC > class sklearn.feature_selection.SelectFromModel(estimator, *, threshold=None, prefit=False, norm_order=1, max_features=None, importance_getter='auto')
+# MAGIC 
+# MAGIC SelectFromModel是一个元变换器，可以与任何具有可选惩罚项参数（penalty）或在拟合后具有`coef_`、`feature_importances_`属性的评估器一起使用。比如随机森林和树模型具有`feature_importances_`属性，逻辑回归带有l1和l2惩罚项，线性支持向量机也有l2惩罚项。
+# MAGIC 
+# MAGIC 对于有`feature_importances_`的模型来说，如果重要性低于提供的阈值，则认为这些特征不重要，并且被移除。`feature_importances_`的取值再0-1之间，如果设置的阈值很小，比如0.0001，就可以删除那些对模型基本没有贡献的特征。如果设置的阈值比较大，就会删除掉很多有用的特征。
+# MAGIC 
+# MAGIC 重要参数：
+# MAGIC | 参数 | 说明 |
+# MAGIC | ----- | ----- |
+# MAGIC | estimator | 使用的模型评估器，只要是有`coef_`或`feature_importances_`属性，或带有l1, l2惩罚项的模型都可以，一定是实例化后的模型对象 |
+# MAGIC | threshold | 特征重要性的阈值，重要性低于这个阈值的特征都会被删除 |
+# MAGIC | prefit | 默认False，判断是否将实例化后的模型直接传递给构造函数。如果为True，则必须直接调用fit和transform，不能使用fit_transform，并且SelectFromModel不能与cross_val_score，GridSearchCV和克隆估计器的类似实用程序一起使用 |
+# MAGIC | norm_order | 非负整数，默认1。在评估器的`coef_`属性的维度高于1维的情况下，用于过滤低于阈值的系数的向量的范数的阶数 |
+# MAGIC | max_features | 在阈值设定下，要选择的最大特征数。要禁用阈值并且仅根据max_features来选择，则需要设置threshold=-np.inf |
+# MAGIC | importance_getter | 指定用于获取特征重要性的方法。如果是"auto"，就用估计器的`coef_`或`feature_importances_`属性，如果是自定义的回调方法，则回调应该返回每个特征的重要性 |
+
+# COMMAND ----------
+
+from sklearn.ensemble import RandomForestClassifier as RFC
+from sklearn.model_selection import cross_val_score
+import numpy as np
+import zipfile
+import pandas as pd
+
+digit_recognizer_train = pd.read_csv("../../Datasets/digit_recognizer_train.zip",compression='zip')
+
+X = digit_recognizer_train.iloc[:,1:]
+y = digit_recognizer_train.iloc[:,0]
+
+X.shape
+
+# COMMAND ----------
+
+from sklearn.feature_selection import SelectFromModel
+
+RFC_ = RFC(n_estimators=10, random_state=0)
+
+X_embedded = SelectFromModel(RFC_, threshold=0.005).fit_transform(X, y)
+
+X_embedded.shape
+
+# COMMAND ----------
+
+import matplotlib.pyplot as plt
+
+feature_importances = RFC_.fit(X, y).feature_importances_
+threshold = np.linspace(0, feature_importances.max(), 20)
+
+score = []
+
+for i in threshold:
+    X_embedded = SelectFromModel(RFC_, threshold=i).fit_transform(X, y)
+    score.append(cross_val_score(RFC_, X_embedded, y, cv=5).mean())
+
+plt.figure(figsize=(20,5))
+plt.xticks(threshold)
+plt.plot(threshold, score)
+
+# COMMAND ----------
+
+import matplotlib.pyplot as plt
+
+threshold = np.linspace(0, 0.00134, 20)
+
+score = []
+
+for i in threshold:
+    X_embedded = SelectFromModel(RFC_, threshold=i).fit_transform(X, y)
+    score.append(cross_val_score(RFC_, X_embedded, y, cv=5).mean())
+
+plt.figure(figsize=(20,5))
+plt.xticks(threshold)
+plt.plot(threshold, score)
+
+# COMMAND ----------
+
+X_embedded = SelectFromModel(RFC_, threshold=0.000071).fit_transform(X, y)
+cross_val_score(RFC_, X_embedded, y, cv=5).mean()
+
+# COMMAND ----------
+
+RFC_ = RFC(n_estimators=100, random_state=0)
+X_embedded = SelectFromModel(RFC_, threshold=0.000071).fit_transform(X, y)
+cross_val_score(RFC_, X_embedded, y, cv=5).mean()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### 包装法
+# MAGIC 
+# MAGIC 包装法，也是一个**特征选择和算法训练同时进行**的方法，与嵌入法十分相似。它也是依赖于算法自身的选择，比如`coef_`或`feature_importances_`属性来完成特征选择。不同的是我们往往使用一个目标函数作为黑盒来帮助我们完成特征选择，而不是我们自己输入某个评估指标或统计量的阈值。
+# MAGIC 
+# MAGIC 包装法在初始训练集上训练我们的评估器，并且通过`coef_`属性或`feature_importances_`属性获得每个特征的重要性，然后从当前的一组特征中删除掉一些最不重要的特征，然后在修改后的集合上重复该过程，直到最后剩下的特征是我们规定的数量。
+# MAGIC 
+# MAGIC 区别于嵌入法的每次都使用全部的特征来进行训练和建模，包装法每次使用的特征都是基于上一次修剪后剩下的特征来进行训练和建模，因此包装法需要的计算成本位于嵌入法和过滤法之间。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 目标函数
+# MAGIC 
+# MAGIC 最典型的目标函数是**递归特征消除法（Recursive feature elimination，简写为RFE）**。它是一种贪婪的优化算法，就是为了找到性能最佳的特征子集。
+# MAGIC 它反复创建模型，并在每次迭代时保留最佳特征或剔除最差特征，下一次迭代时，它会使用上一次建模中没有被选中的特征来构建下一个模型，直到所有特征都耗尽为止。然后，它根据自己保留或剔除特征的顺序来对所有特征进行排名，最终选出一个最佳子集。
+# MAGIC 
+# MAGIC 包装法的效果是所有特征选择方法中最利于提升模型表现的，它可以使用很少的特征达到很优秀的效果。除此之外，在特征数目相同时，包装法和嵌入法的效果能够匹敌，不过它比嵌入法算得更快，虽然它的计算量也十分庞大，不适用于太大型的数据。相比之下，包装法仍然是最高效的特征选择方法。
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### RFE
