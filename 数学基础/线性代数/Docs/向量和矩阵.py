@@ -253,15 +253,11 @@ print(a.dot(c) + b.dot(c))
 # MAGIC 
 # MAGIC **代数定义：** ![](https://www.zhihu.com/equation?tex=%5Cvec%7Ba%7D%5Ctimes+%5Cvec%7Bb%7D%3D+%5Cleft+%28+y_%7B1%7Dz_%7B2%7D-z_%7B1%7Dy_%7B2%7D+%2Cz_%7B1%7Dx_%7B2%7D-x_%7B1%7Dz_%7B2%7D+%2Cx_%7B1%7Dy_%7B2%7D-y_%7B1%7Dx_%7B2%7D+%5Cright+%29)
 # MAGIC 
-# MAGIC ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220224180620745.png)
-# MAGIC 
 # MAGIC **几何定义：** 我们将 ![](https://www.zhihu.com/equation?tex=%5Cvec%7Ba%7D) 和 ![](https://www.zhihu.com/equation?tex=%5Cvec%7Bb%7D) 的夹角记作 ![](https://www.zhihu.com/equation?tex=%5Ctheta) ，且 ![](https://www.zhihu.com/equation?tex=0%5Cleqslant+%5Ctheta+%5Cleqslant+%5Cpi)，那么叉乘得到的向量的模长为：
 # MAGIC 
 # MAGIC ![](https://www.zhihu.com/equation?tex=%7C+%5Cvec%7Ba%7D+%5Ctimes+%5Cvec%7Bb%7D+%7C+%3D+%7C+%5Cvec%7Ba%7D+%7C+%5Ccdot+%7C+%5Cvec%7Bb%7D+%7C%5Ccdot+sin%5Ctheta)
 # MAGIC 
 # MAGIC **方向：**与这两个向量所在平面垂直，且遵守**右手螺旋定则**（四指方向代表旋转的方向，右手四指从 ![](https://www.zhihu.com/equation?tex=%5Cvec%7Ba%7D) 转向 ![](https://www.zhihu.com/equation?tex=%5Cvec%7Bb%7D) 时，大拇指的方向即向量积的方向）
-# MAGIC 
-# MAGIC ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220224174300517.png)
 # MAGIC 
 # MAGIC 用矩阵表示：
 # MAGIC 
@@ -591,38 +587,38 @@ print(A.T*B.T)
 # MAGIC %md
 # MAGIC ### 导数的定义
 # MAGIC 
-# MAGIC 设函数![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227120456934.png)在点![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227120121402.png)的邻域![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227120609752.png)内有定义，当自变量x在![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227120121402.png)处取增量![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227121148095.png)（且![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227121531275.png)）时，相应地，因变量的增量![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227121749643.png)，若![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227122021019.png)与![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227121148095.png)之比当![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227122116523.png)时的极限存在，那么称函数![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227120456934.png)在点![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227120121402.png)处可导，并称这个极限为函数![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227120456934.png)在点![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227120121402.png)处的导数，记为![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227122219691.png)。即：
+# MAGIC 设函数![](https://www.zhihu.com/equation?tex=y%3Df%28x%29)在点![](https://www.zhihu.com/equation?tex=x_0)的邻域![](https://www.zhihu.com/equation?tex=U%28x_0%29)内有定义，当自变量![](https://www.zhihu.com/equation?tex=x)在![](https://www.zhihu.com/equation?tex=x_0)处取增量![](https://www.zhihu.com/equation?tex=%5CDelta+x)（且![](https://www.zhihu.com/equation?tex=x_0%2B%5CDelta+x%5Cin+U%28x_0%29)）时，相应地，因变量的增量![](https://www.zhihu.com/equation?tex=%5CDelta+y%3Df%28x_0%2B%5CDelta+x%29%2Df%28x_0%29)，若![](https://www.zhihu.com/equation?tex=%5CDelta+y)与![](https://www.zhihu.com/equation?tex=%5CDelta+x)之比当![](https://www.zhihu.com/equation?tex=%5CDelta+x%E2%86%920)时的极限存在，那么称函数![](https://www.zhihu.com/equation?tex=y%3Df%28x%29)在点![](https://www.zhihu.com/equation?tex=x_0)处可导，并称这个极限为函数![](https://www.zhihu.com/equation?tex=y%3Df%28x%29)在点![](https://www.zhihu.com/equation?tex=x_0)处的导数，记为![](https://www.zhihu.com/equation?tex=f%27%28x_0%29)。即：
 # MAGIC 
-# MAGIC ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227125541115.png)
+# MAGIC ![](https://www.zhihu.com/equation?tex=f%27%28x_0%29%3D%5Clim_%7B%5CDelta+x%5Crightarrow+0%7D%5Cfrac%7B%5CDelta+y%7D%7B%5CDelta+x%7D%3D%5Cfrac%7Bf%28x_0%2B%5CDelta+x%29-f%28x_0%29%7D%7B%5CDelta+x%7D)
 # MAGIC 
 # MAGIC 或：
 # MAGIC 
-# MAGIC ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227130429311.png)
+# MAGIC ![](https://www.zhihu.com/equation?tex=f%27%28x_0%29%3D%5Clim_%7Bx%5Crightarrow+x_0%7D%5Cfrac%7Bf%28x%29-f%28x_0%29%7D%7Bx-x_0%7D)
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC #### 常见的一些导数
 # MAGIC 
-# MAGIC | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227130836687.png) |  ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227130926099.png) |
+# MAGIC | ![](https://www.zhihu.com/equation?tex=f%28x%29) |  ![](https://www.zhihu.com/equation?tex=f%27%28x%29) |
 # MAGIC | ---------- | ---------- |
 # MAGIC | C | 0 |
-# MAGIC | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227131619631.png) | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227131630072.png) |
-# MAGIC | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227131646472.png) | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227131701560.png) |
-# MAGIC | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227131719100.png) | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227131719100.png) |
-# MAGIC | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227131833149.png) | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227131842700.png) |
-# MAGIC | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227131933859.png) | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227131646472.png) |
-# MAGIC | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227132007932.png) | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227132021327.png) |
-# MAGIC | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227132021327.png) | ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227132050331.png) |
+# MAGIC | ![](https://www.zhihu.com/equation?tex=x%5En) | ![](https://www.zhihu.com/equation?tex=nx%5E%7Bn-1%7D) |
+# MAGIC | ![](https://www.zhihu.com/equation?tex=%5Cfrac%7B1%7D%7Bx%7D) | ![](https://www.zhihu.com/equation?tex=-%5Cfrac%7B1%7D%7Bx%5E2%7D) |
+# MAGIC | ![](https://www.zhihu.com/equation?tex=e%5Ex) | ![](https://www.zhihu.com/equation?tex=e%5Ex) |
+# MAGIC | ![](https://www.zhihu.com/equation?tex=a%5Ex) | ![](https://www.zhihu.com/equation?tex=a%5Ex%5Cln+a) |
+# MAGIC | ![](https://www.zhihu.com/equation?tex=%5Cln+x) | ![](https://www.zhihu.com/equation?tex=%5Cfrac%7B1%7D%7Bx%7D) |
+# MAGIC | ![](https://www.zhihu.com/equation?tex=%5Csin+x) | ![](https://www.zhihu.com/equation?tex=%5Ccos+x) |
+# MAGIC | ![](https://www.zhihu.com/equation?tex=%5Ccos+x) | ![](https://www.zhihu.com/equation?tex=-%5Csin+x) |
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC ### 矩阵的导数
 # MAGIC 
-# MAGIC ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227135821552.png)
+# MAGIC ![](https://www.zhihu.com/equation?tex=%5Cfrac%7B%5CDelta+AX%7D%7B%5CDelta+X%7D%3DA%5ET)
 # MAGIC 
-# MAGIC ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227135831708.png)
+# MAGIC ![](https://www.zhihu.com/equation?tex=%5Cfrac%7B%5CDelta+X%5ETAX%7D%7B%5CDelta+X%7D%3D%28A%2BA%5ET%29X)
 
 # COMMAND ----------
 
@@ -679,7 +675,7 @@ print(A)
 # MAGIC ### 对称矩阵
 # MAGIC 以主对角线为对称轴，各个元素对应相等的矩阵。
 # MAGIC 
-# MAGIC 对称矩阵的一个性质：![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227141042920.png)
+# MAGIC 对称矩阵的一个性质：![](https://www.zhihu.com/equation?tex=X%5ET%3DX)
 
 # COMMAND ----------
 
@@ -707,15 +703,15 @@ print(D)
 
 # MAGIC %md
 # MAGIC ### 正交矩阵
-# MAGIC 如果矩阵满足：![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227141858040.png)(单位矩阵)，则称该矩阵为正交矩阵。
+# MAGIC 如果矩阵满足：![](https://www.zhihu.com/equation?tex=AA%5ET=A%5ETA=E)(单位矩阵)，则称该矩阵为正交矩阵。
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC ### 正定矩阵
-# MAGIC ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227164817922.png)
+# MAGIC ![](https://www.zhihu.com/equation?tex=f%28x%29%3Dx_1%5E2%2Bx_2%5E2%2b0.1x_1x_2)
 # MAGIC 
-# MAGIC 矩阵A：![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227164843138.png)
+# MAGIC 矩阵A：![](https://www.zhihu.com/equation?tex=%5Cbegin%7Bbmatrix%7D++1%260.05+%5C%5C++0.05%261++%5Cend%7Bbmatrix%7D)
 # MAGIC 
 # MAGIC 效果：具有唯一的最小值。
 
@@ -723,9 +719,9 @@ print(D)
 
 # MAGIC %md
 # MAGIC ### 半正定矩阵
-# MAGIC ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227165104338.png)
+# MAGIC ![](https://www.zhihu.com/equation?tex=f%28x%29%3Dx_1%5E2%2Bx_2%5E2%2b2x_1x_2)
 # MAGIC 
-# MAGIC 矩阵A：![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227165114722.png)
+# MAGIC 矩阵A：![](https://www.zhihu.com/equation?tex=%5Cbegin%7Bbmatrix%7D++1%261+%5C%5C++1%261++%5Cend%7Bbmatrix%7D)
 # MAGIC 
 # MAGIC 效果：具有不唯一的最小值。
 
@@ -744,7 +740,7 @@ print(D)
 
 # MAGIC %md
 # MAGIC ## 目标函数
-# MAGIC ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227162514709.png)
+# MAGIC ![](https://www.zhihu.com/equation?tex=E%3D%5Csum_%7Bi%3D1%7D%5En%28y-y_i%29%5E2)
 
 # COMMAND ----------
 
@@ -757,7 +753,7 @@ print(D)
 # MAGIC %md
 # MAGIC ## 解法
 # MAGIC 
-# MAGIC 1.列出目标函数E（损失函数![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227163135238.png)），此时的预测值用![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227163215430.png)来表示。
+# MAGIC 1.列出目标函数E（损失函数![](https://www.zhihu.com/equation?tex=j%28%CE%B8%29)），此时的预测值用![](https://www.zhihu.com/equation?tex=y%3Dh_%CE%B8%28x%5E%7B%28i%29%7D%29%3Dx%CE%B8)来表示。
 # MAGIC 
 # MAGIC 2.求损失函数关于参数的导数，使导数为0，代表损失函数最小。
 # MAGIC 
@@ -769,8 +765,8 @@ print(D)
 # MAGIC ## 求解过程
 # MAGIC 首先明确一下向量和矩阵的导数：
 # MAGIC 
-# MAGIC ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227135821552.png)
+# MAGIC ![](https://www.zhihu.com/equation?tex=%5Cfrac%7B%5CDelta+AX%7D%7B%5CDelta+X%7D%3DA%5ET)
 # MAGIC 
-# MAGIC ![](https://gitee.com/wux_labs/Data-Scientist/raw/master/数学基础/线性代数/向量和矩阵/20220227135831708.png)
+# MAGIC ![](https://www.zhihu.com/equation?tex=%5Cfrac%7B%5CDelta+X%5ETAX%7D%7B%5CDelta+X%7D%3D%28A%2BA%5ET%29X)
 # MAGIC 
 # MAGIC 一个条件：要满足正定矩阵
