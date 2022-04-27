@@ -28,6 +28,14 @@
 # MAGIC | 22 | Χ | χ | chi | /kai/ | 西 | 统计学中有卡方(χ2)分布 |
 # MAGIC | 23 | Ψ | ψ | psi | /psai/ | 普塞 | 角速；介质电通量（静电力线）；角 |
 # MAGIC | 24 | Ω | ω | omega | /'əumigə/ | 欧米伽 | 欧姆（大写）；角速（小写）；角 |
+# MAGIC 
+# MAGIC %5Cin = ![](https://www.zhihu.com/equation?tex=%5Cin)
+# MAGIC 
+# MAGIC = ![](https://www.zhihu.com/equation?tex=%5Csubset)
+# MAGIC 
+# MAGIC ![](https://www.zhihu.com/equation?tex=%5Csubseteq)
+# MAGIC 
+# MAGIC ![](https://www.zhihu.com/equation?tex=%5Carrowright)
 
 # COMMAND ----------
 
